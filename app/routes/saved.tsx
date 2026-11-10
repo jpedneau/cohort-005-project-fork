@@ -75,10 +75,12 @@ export default function Saved({ loaderData }: Route.ComponentProps) {
               {savedNotes.map((note) => (
                 <SavedLessonCard key={note.id} lesson={note.lesson}>
                   {/* Plain text — a Note is never rendered as Markdown. */}
-                  <p className="whitespace-pre-wrap text-sm">{note.body}</p>
+                  <p className="mt-3 whitespace-pre-wrap break-words border-l-2 pl-3 text-sm leading-relaxed text-foreground/90">
+                    {note.body}
+                  </p>
                   <p
                     suppressHydrationWarning
-                    className="text-xs text-muted-foreground"
+                    className="mt-3 text-xs text-muted-foreground"
                   >
                     Edited {formatRelativeTime(note.updatedAt)}
                   </p>
@@ -104,15 +106,17 @@ function SavedLessonCard({
   children?: React.ReactNode;
 }) {
   return (
-    <Card>
-      <CardContent className="space-y-1 py-3">
+    <Card className="gap-0 py-0">
+      <CardContent className="px-5 py-4">
         <Link
           to={`/courses/${lesson.courseSlug}/lessons/${lesson.id}`}
           className="text-sm font-medium hover:underline"
         >
           {lesson.title}
         </Link>
-        <p className="text-xs text-muted-foreground">{lesson.courseTitle}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {lesson.courseTitle}
+        </p>
         {children}
       </CardContent>
     </Card>
