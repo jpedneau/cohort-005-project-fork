@@ -20,13 +20,16 @@ export function LessonNote({ note }: { note: SavedNote }) {
   const fetcher = useFetcher<{ ok: boolean; error?: string }>();
   const [draft, setDraft] = useState(note?.body ?? "");
   const isSaving = fetcher.state !== "idle";
-  const error = fetcher.data?.error;
+  // An error describes the draft that was submitted; once the Student edits,
+  // it no longer applies.
+  const [submittedDraft, setSubmittedDraft] = useState<string | null>(null);
+  const error = draft === submittedDraft ? fetcher.data?.error : undefined;
   const isDirty = isNoteChanged(draft, note?.body ?? "");
 
   return (
-    <Card className="mb-8 gap-0 overflow-hidden py-0">
+    <Card className="mb-8 gap-0 overflow-hidden py-0 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
       <NoteHeader />
-      <fetcher.Form method="post">
+      <fetcher.Form method="post" onSubmit={() => setSubmittedDraft(draft)}>
         <input type="hidden" name="intent" value="save-note" />
         <label htmlFor="lesson-note-body" className="sr-only">
           Your note on this lesson
@@ -36,6 +39,7 @@ export function LessonNote({ note }: { note: SavedNote }) {
           name="body"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
+          aria-describedby="lesson-note-length"
           placeholder="Capture key ideas, questions, or anything you want to come back to."
           className="min-h-40 resize-y rounded-none border-0 px-5 py-4 leading-relaxed shadow-none focus-visible:ring-0 dark:bg-transparent"
         />
@@ -113,8 +117,11 @@ function NoteStatus({
 function NoteCounter({ draft }: { draft: string }) {
   const { label, tone } = noteLength(draft);
   return (
-    <span className={cn("text-xs tabular-nums", COUNTER_TONE[tone])}>
-      {label}
+    <span
+      id="lesson-note-length"
+      className={cn("text-xs tabular-nums", COUNTER_TONE[tone])}
+    >
+      {tone === "over" ? `Too long: ${label}` : label}
     </span>
   );
 }
